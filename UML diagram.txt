@@ -1,0 +1,41 @@
+_BaseKMeans
+
+fields:
++_n_clusters :ndarray
++_init :str
++_seed :float
+
+methods:
+__init__(n_clusters, init, max_iter, seed)
+_distance()
+_init_random()
+_init_kmeansplusplus()
+
+
+==================================
+KMeansEuclidean
+
+fields:
++cluster_centers_ :ndarray
++labels_ :ndarray
++intertia_ :float
+
+methods:
+__init__(n_clusters, init, max_iter, seed)
+_distance(v1, v2)
+_init_random()
+_init_kmeansplusplus()
+_centroid_new_pos()
+_centroids_update
+fit()
+fit_predict
+predict
+
+property methods:
+cluster_centers_
+labels_
+sse_
+
+==================================
+KMeansCosine
+
