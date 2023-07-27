@@ -15,14 +15,14 @@ plt.suptitle("Ground truth clusters").set_y(0.95)
 # path management
 import os
 base_directory = os.path.dirname(os.path.dirname(__file__))
-
 import sys
 sys.path.append(f"{base_directory}/src")
 
 from kmars import KMeansEuclidean
-km = KMeansEuclidean(3)
+km = KMeansEuclidean(3, n_init=10, cluster_update='mean', max_iter=300)
 km.fit(X)
 print(km.cluster_centers)
-print(km.labels)
+print(km.labels[km.labels==1].shape)
 print(km.sse)
+
 

@@ -18,12 +18,9 @@ print(arr.sum(axis=-1))
 # arr = np.append(arr, 1)
 # arr = np.append(arr, 1)
 # print(arr)
+    
+i=100
+print("Convergence reached at iteration %s" % (i))
+print(f"Convergence reached at iteration {i}" )
 
-def _get_nearest_centroids(self, X, centroids):
-        nearest_centroids = np.empty(0, int)
-        for i in range(X.shape[0]):
-            datapoint = X[i]
-            ind_nearest_centroid = np.argmin([self._distance_euclidean(datapoint, c) for c in centroids])
-            nearest_centroids = np.append(np.array([ind_nearest_centroid]), nearest_centroids, 0)
-        
-        return nearest_centroids
+

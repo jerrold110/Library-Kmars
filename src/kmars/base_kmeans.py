@@ -13,22 +13,30 @@ class _BaseKMeans:
     max_iter: The numer of iterations to recalculate centroids
     
     seed: The random seed used to initialise the centroids
-    
-    ----------
-    Init methods:
-    rand
-    kmeans++
     """
-    def __init__(self, n_clusters, init="kmeans++", max_iter=100, random_state=0):
+    def __init__(self, n_clusters, init, n_init, cluster_update, max_iter, tol, random_state):
+        
+        assert init in ['kmeans++','rand'], "init argument %s not valid" % (init)
+        assert cluster_update in ['mean','median'], "cluster_update argument %s not valid" % (init)
         self._n_clusters = n_clusters
         self._init = init
+        self._n_init = n_init
+        self._cluster_update = cluster_update
         self._max_iter = max_iter
+        self._tol = tol
         self._random_state = random_state
-        print("KMeans base class inheritance for __init__ of base class successful")
     
     def _init_random(self, X, n_clusters):
         """
         Returns a 2D array of initial centroid positions initialised randomly between the max and min value of every column
+        
+        Args:
+            a (_type_): _description_
+            b (_type_): _description_
+            c (_type_): _description_
+
+        Returns:
+            _type_: _description_
         """
         random_centroids = np.array([])
         column_maxs = X.max(axis=0)
@@ -43,7 +51,7 @@ class _BaseKMeans:
     
     def _init_kmeansplusplus(self, X, seed):
         """
-        Selects initial centroid and returns two arrays. One of the initial centroid, and the candidates. This is only called once for every fit() function
+        Selects initial centroid and returns two arrays. One of the initial centroid, and the candidates.
         """
         np.random.seed(seed)
         n_samples, n_features = X.shape
