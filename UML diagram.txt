@@ -6,11 +6,10 @@ fields:
 +_seed :float
 
 methods:
-__init__(n_clusters, init, max_iter, seed)
-_distance()
+__init__()
 _init_random()
 _init_kmeansplusplus()
-
+_fit_kmeans() # This only selects the initial random centroid
 
 ==================================
 KMeansEuclidean
@@ -22,14 +21,16 @@ fields:
 
 methods:
 __init__(n_clusters, init, max_iter, seed)
-_distance(v1, v2)
-_init_random()
-_init_kmeansplusplus()
-_centroid_new_pos()
-_centroids_update
+_init_random() - super
+_distance_euclidean(p1, p2)
+_init_kmeansplusplus(X, n, _distance_euclidean) - super
+
+_fit_centroid_new_pos()
+_fit_centroids_update()
+_fit_get_nearest_centroids()
+_fit_euclidean_kmeans()
 fit()
-fit_predict
-predict
+
 
 property methods:
 cluster_centers_
