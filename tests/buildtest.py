@@ -19,7 +19,7 @@ import sys
 sys.path.append(f"{base_directory}/src")
 
 from kmars import KMeansEuclidean
-km = KMeansEuclidean(3, n_init=10, cluster_update='mean', max_iter=300)
+km = KMeansEuclidean(3, n_init=10, init='rand', cluster_update='mean', max_iter=300)
 km.fit(X)
 print(km.cluster_centers)
 print(km.labels[km.labels==1].shape)

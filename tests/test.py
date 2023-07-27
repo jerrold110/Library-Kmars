@@ -19,8 +19,9 @@ print(arr.sum(axis=-1))
 # arr = np.append(arr, 1)
 # print(arr)
     
-i=100
-print("Convergence reached at iteration %s" % (i))
-print(f"Convergence reached at iteration {i}" )
+random_centroids = np.empty((0,3))
+def foo(x):
+    x = np.append(arr=x, values=np.array([centroid])+i, axis=0)
+print(random_centroids)
 
 

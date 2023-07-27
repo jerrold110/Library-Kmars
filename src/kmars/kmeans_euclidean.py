@@ -10,11 +10,11 @@ class KMeansEuclidean(_BaseKMeans):
         self._labels = None
         self._sse = None
     
-    def _init_random(self, X, n_clusters):
+    def _init_random(self, X):
         """
         Returns a 2D array of initial centroid positions initialised randomly between the max and min value of every column
         """
-        random_centroids = super()._init_random()
+        random_centroids = super()._init_random(X)
         
         return random_centroids
     
@@ -86,8 +86,10 @@ class KMeansEuclidean(_BaseKMeans):
             results.append((sse, centroids))
         # Sort results by see
         results.sort(key=lambda x:x[0])
+        print("Kmeans++ initial centroids:")
         print(results[0][1])
         print(results[0][0])
+        print("")
 
         return results[0][1]
     
@@ -106,6 +108,7 @@ class KMeansEuclidean(_BaseKMeans):
         """
         Returns a vector of the updated centroids.
         x_nearest_centroids denotes the index of the nearest centroid in centroids for each data point.
+        This function changes the parameter current_centroid (ndarray) because it is being passed by reference
         
         Args:
             n_centroids (int): the number of centroids
@@ -113,12 +116,13 @@ class KMeansEuclidean(_BaseKMeans):
             x_nearest_centroids (vector): index positions of nearest centroids for each data point
             current_centroids (matrix): the array containing the current positions of the centroids
         """
+        current_centroids_copy = current_centroids.copy()
         for i in range(n_centroids):
             centroid_connected_points = X[x_nearest_centroids==i]
             new_centroid = self._centroid_new_pos(centroid_connected_points)
-            current_centroids[i] = new_centroid
+            current_centroids_copy[i] = new_centroid
             
-        return current_centroids
+        return current_centroids_copy
     
     def _get_nearest_centroids(self, X, centroids):
         """
@@ -149,32 +153,40 @@ class KMeansEuclidean(_BaseKMeans):
         """
         self._n_samples, self._n_features = X.shape  
         if self._init == "rand":
-            initial_centroids = self._init_random(X, self.n_clusters)
+            initial_centroids = self._init_random(X)
         elif self._init == "kmeans++":
             initial_centroids = self._init_kmeansplusplus(X, self._n_clusters)
         else:
             raise TypeError("The init variable %s is invalid " % (self._init))
         print("Initial centroid via %s successful" % (self._init))
+        # These variables are for testing the sse of the initial centroids
+        initial_labels = self._get_nearest_centroids(X, initial_centroids)
+        initial_sse = self._sse_error(X, initial_centroids, initial_labels)
+        print(initial_centroids)
+        print(initial_sse)
         # Loop over the max_iterations
         # tolerance for breakage will be added later on
         current_centroids = np.copy(initial_centroids)
-        # Update current_centroids by recalculating the average position of each centroid
+        # 1: Calculate positions of new centroids based on mean/median of points that belong to it
+        # 2: Update current_centroids to new_centroids
+        
         print('Starting iterations...')
         for i in range(self._max_iter):
             nearest_centroids = self._get_nearest_centroids(X, current_centroids)
             new_centroids = self._centroids_update(self._n_clusters, X, nearest_centroids, current_centroids)
-            # Calculate frobenius norm against tolerance to declare convergence
+            # 3: Calculate frobenius norm against tolerance to declare convergence
             diff = new_centroids - current_centroids
             fn_update_diff = np.sqrt(np.sum(np.square(diff)))
+            print(fn_update_diff)
             if (fn_update_diff < self._tol):
                 print(f"Convergence reached at iteration {i}")
                 break
             else:
                 current_centroids = new_centroids
         if self._cluster_update == "mean":
-            print("KMeans iterations complete")
+            print("KMeans iterations complete...")
         elif self._cluster_update == "median":
-            print("KMedians iterations complete")
+            print("KMedians iterations complete...")
         self.cluster_centers = current_centroids
         self.labels = self._get_nearest_centroids(X, self.cluster_centers)
         self.sse = self._sse_error(X, self.cluster_centers, self.labels)

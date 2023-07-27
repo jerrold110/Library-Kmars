@@ -26,7 +26,7 @@ class _BaseKMeans:
         self._tol = tol
         self._random_state = random_state
     
-    def _init_random(self, X, n_clusters):
+    def _init_random(self, X):
         """
         Returns a 2D array of initial centroid positions initialised randomly between the max and min value of every column
         
@@ -38,11 +38,13 @@ class _BaseKMeans:
         Returns:
             _type_: _description_
         """
-        random_centroids = np.array([])
+        np.random.seed(self._random_state)
+        n_features = X.shape[1]
+        random_centroids = np.empty((0,n_features))
         column_maxs = X.max(axis=0)
         column_mins = X.min(axis=0)
         column_ranges = column_maxs - column_mins
-        for _ in n_clusters:
+        for _ in range(self._n_clusters):
             centroid =  np.random.uniform(0, 1, X.shape[1])
             centroid = column_mins + (centroid * column_ranges)
             random_centroids = np.append(arr=random_centroids, values=np.array([centroid]), axis=0)
