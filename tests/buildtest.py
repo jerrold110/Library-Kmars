@@ -18,11 +18,16 @@ base_directory = os.path.dirname(os.path.dirname(__file__))
 import sys
 sys.path.append(f"{base_directory}/src")
 
-from kmars import KMeansEuclidean
-km = KMeansEuclidean(3, n_init=10, init='rand', cluster_update='mean', max_iter=300)
+from kmars import KMeans
+km = KMeans(3, dist='euclidean', n_init=10, init='rand', max_iter=300, verb=False)
 km.fit(X)
-print(km.cluster_centers)
-print(km.labels[km.labels==1].shape)
-print(km.sse)
+print(km.init_cluster_centers_)
+print(km.init_labels_[km.init_labels_==1].shape)
+print(km.init_sse_)
+print(km.cluster_centers_)
+print(km.labels_[km.labels_==1].shape)
+print(km.sse_)
+print(km.x_features_)
+print(km.x_samples_)
 
 

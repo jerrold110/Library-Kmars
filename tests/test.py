@@ -19,9 +19,13 @@ print(arr.sum(axis=-1))
 # arr = np.append(arr, 1)
 # print(arr)
     
-random_centroids = np.empty((0,3))
-def foo(x):
-    x = np.append(arr=x, values=np.array([centroid])+i, axis=0)
-print(random_centroids)
+# random_centroids = np.empty((0,3))
+# def foo(x):
+#     x = np.append(arr=x, values=np.array([centroid])+i, axis=0)
+# print(random_centroids)
+
+from sklearn.cluster import KMeans
+print(help(KMeans))
+
 
 

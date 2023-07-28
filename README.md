@@ -1,29 +1,12 @@
-Create kmeans model as a class with OOP
-Use decorators to utilise different error metrics
-Incorporate Kmeans++ for centroid initialisation
+# Introduction
+This is an implementation of K-means/medians/medoids with various distance metrics (including Euclidean, Manhattan, Cosine...).
+
+I created this library for my own use, out of frustratation that the KMeans class of the Scikit-learn library lacks options for customising the variant of the K-algorithm and options for using distance metrics besides Euclidean distance. This library was developed with the intention to replicate the functionality and API convention used in Scikit-learn so that end users, such as myself, will have little difficulty writing code for K-algorithm clustering machine learning tasks.
+
+## Example:
 
 
-Algorithm:
-Initialise K cluster centroids randomly or with Kmeans++
-Repeat:
-    For data points 1 -> m:
-        assign the data point to the closest centroid
-    For centroids 1 -> k:
-        move centroids to the average of all points it is assigned to
+## Features:
 
 
-
-Features:
-Incorporate different distance metrics (euclidean, mahalanobis, cosine similarity...) with decorator functions
-
-fields:
-n_clusters
-initialisation method
-iterations (not max_iterations)
-seed
-SSE
-cluster_centers
-labels
-
-future versions:
-tolerance and maximum iterations
+## Issues:

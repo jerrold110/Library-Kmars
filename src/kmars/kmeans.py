@@ -1,14 +1,47 @@
-from .base_kmeans import _BaseKMeans
 import numpy as np
+from .base_kmeans import _BaseK
+from .distance_metrics import _distance_euclidean
+from .verbose import blockPrint, enablePrint
 
-class KMeansEuclidean(_BaseKMeans):
-    def __init__(self, n_clusters, init='kmeans++', n_init=10, cluster_update='mean', max_iter=300, tol=0.0001, random_state=0):
-        super().__init__(n_clusters, init, n_init, cluster_update, max_iter, tol, random_state)
+class KMeans(_BaseK):
+    """
+    K-Means clustering object.
+
+    Args:
+        n_clusters (int): The number of clusters to form
+        dist (str, optional): The distance metric used:{'euclidean','manhattan','cosine','mahanalobis'}. Defaults to 'euclidean'.
+        init (str, optional): The initialisation method used to select initial centroids, 'kmeans++' or 'rand' . Defaults to 'kmeans++'.
+        n_init (int, optional): The number of different seeds and times to run the kmeans++ initialisation of which best result is selected. Defaults to 10.
+        max_iter (int, optional): The maximum number of iterations the K-Means algorithm can run without convergence. Defaults to 300.
+        tol (float, optional): The relative tolerance of the Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence. Defaults to 0.0001.
+        random_state (int, optional): The RNG seed used for centroid initialisation. Defaults to 0.
+        verb (bool, optional): Enable or disable verbose output. Defaults to False.
+        
+    Methods:
+        fit()
+    
+    Getter methods call-able after calling fit():
+        init_cluster_centers_
+        init_labels_
+        init_sse_
+        cluster_centers_
+        labels_
+        sse_
+        x_samples
+        x_features
+    """
+    def __init__(self, n_clusters, dist='euclidean', init='kmeans++', n_init=10, max_iter=300, tol=0.0001, random_state=0, verb=False):
+        
+        super().__init__(n_clusters, dist, init, n_init, max_iter, tol, random_state, verb)
         self._n_samples = None
         self._n_features = None
+        self._init_cluster_centers = None
+        self._init_labels = None
+        self._init_sse = None
         self._cluster_centers = None
         self._labels = None
         self._sse = None
+        print("KMeans object initialised with %s distance metric"%(self._dist))
     
     def _init_random(self, X):
         """
@@ -18,14 +51,21 @@ class KMeansEuclidean(_BaseKMeans):
         
         return random_centroids
     
-    def _distance_euclidean(self, v1, v2):
+    def _distance(self, v1, v2):
+        """_summary_
+
+        Args:
+            v1 (_type_): _description_
+            v2 (_type_): _description_
+
+        Returns
+            _type_: _description_
         """
-        Euclidean distance between two points
-        Distance methods take in two single dimension vectors (ndarrays)
-        """
-        dist = np.linalg.norm(v1 - v2, ord=2, axis=0)
-        
-        return dist
+        if self._dist == 'euclidean':
+            distance = _distance_euclidean(v1, v2)
+            return distance
+        else:
+            raise ValueError("We should not be able to get here. Error in _distance function with dist input %s" % (self._dist))
     
     def _sse_error(self, X, cluster_centers, x_labels):
         """
@@ -42,7 +82,7 @@ class KMeansEuclidean(_BaseKMeans):
         sse_error = .0
         for i in range(self._n_samples):
             nearest_cluster_ind = x_labels[i]
-            point_to_centroid_distance = self._distance_euclidean(X[i], cluster_centers[nearest_cluster_ind])
+            point_to_centroid_distance = self._distance(X[i], cluster_centers[nearest_cluster_ind])
             se_error = point_to_centroid_distance**2
             sse_error += se_error
         return sse_error
@@ -71,7 +111,7 @@ class KMeansEuclidean(_BaseKMeans):
                 for j in range(n_candidate_centroids):
                     point_to_centroid = []
                     for c in range(n_centroids):
-                        point_to_centroid.append(self._distance_euclidean(candidate_centroids[j], centroids[c]))
+                        point_to_centroid.append(self._distance(candidate_centroids[j], centroids[c]))
                     distances.append(min(point_to_centroid))
                 distances = np.array(distances)
                 probabilities = distances / np.sum(distances)
@@ -86,10 +126,10 @@ class KMeansEuclidean(_BaseKMeans):
             results.append((sse, centroids))
         # Sort results by see
         results.sort(key=lambda x:x[0])
-        print("Kmeans++ initial centroids:")
-        print(results[0][1])
-        print(results[0][0])
-        print("")
+        # print("Kmeans++ initial centroids:")
+        # print(results[0][1])
+        # print(results[0][0])
+        # print("")
 
         return results[0][1]
     
@@ -97,12 +137,13 @@ class KMeansEuclidean(_BaseKMeans):
         """
         Takes in a 2D numpy array of all the points belonging to a centroid, returns an array that is mean 
         """
-        if self._cluster_update == "mean":
-            return np.mean(points, axis=0)
-        elif self._cluster_update == "median":
-            return np.median(points, axis=0)
-        else:
-            raise AssertionError("This value of cluster_update %s ain't possible" % (self._cluster_update))
+        # if self._cluster_update == "mean":
+        #     return np.mean(points, axis=0)
+        # elif self._cluster_update == "median":
+        #     return np.median(points, axis=0)
+        # else:
+        #     raise AssertionError("This value of cluster_update %s ain't possible" % (self._cluster_update))\
+        return np.mean(points, axis=0)
     
     def _centroids_update(self, n_centroids, X, x_nearest_centroids, current_centroids):
         """
@@ -138,7 +179,7 @@ class KMeansEuclidean(_BaseKMeans):
         # Add index position to nearest_centroids
         for i in range(X.shape[0]):
             datapoint = X[i]
-            distances = np.array([self._distance_euclidean(datapoint, c) for c in centroids])
+            distances = np.array([self._distance(datapoint, c) for c in centroids])
             ind_nearest_centroid = np.argmin(distances)
             nearest_centroids = np.append(nearest_centroids, np.array([ind_nearest_centroid]), 0)
 
@@ -151,26 +192,33 @@ class KMeansEuclidean(_BaseKMeans):
         Args:
             x (_type_): A 2D ndarray
         """
+        if self._verb == False:
+            blockPrint()
+        elif self._verb == True:
+            pass
+        else:
+            raise ValueError("Error in verbose with input %s" % (self._verb))
+        
         self._n_samples, self._n_features = X.shape  
         if self._init == "rand":
             initial_centroids = self._init_random(X)
         elif self._init == "kmeans++":
             initial_centroids = self._init_kmeansplusplus(X, self._n_clusters)
         else:
-            raise TypeError("The init variable %s is invalid " % (self._init))
+            raise ValueError("The init variable %s is invalid " % (self._init))
         print("Initial centroid via %s successful" % (self._init))
         # These variables are for testing the sse of the initial centroids
         initial_labels = self._get_nearest_centroids(X, initial_centroids)
         initial_sse = self._sse_error(X, initial_centroids, initial_labels)
-        print(initial_centroids)
-        print(initial_sse)
+        self._init_cluster_centers = initial_centroids
+        self._init_labels = initial_labels
+        self._init_sse = initial_sse
         # Loop over the max_iterations
         # tolerance for breakage will be added later on
         current_centroids = np.copy(initial_centroids)
         # 1: Calculate positions of new centroids based on mean/median of points that belong to it
         # 2: Update current_centroids to new_centroids
-        
-        print('Starting iterations...')
+        print('Starting KMeans iterations...')
         for i in range(self._max_iter):
             nearest_centroids = self._get_nearest_centroids(X, current_centroids)
             new_centroids = self._centroids_update(self._n_clusters, X, nearest_centroids, current_centroids)
@@ -183,13 +231,27 @@ class KMeansEuclidean(_BaseKMeans):
                 break
             else:
                 current_centroids = new_centroids
-        if self._cluster_update == "mean":
-            print("KMeans iterations complete...")
-        elif self._cluster_update == "median":
-            print("KMedians iterations complete...")
-        self.cluster_centers = current_centroids
-        self.labels = self._get_nearest_centroids(X, self.cluster_centers)
-        self.sse = self._sse_error(X, self.cluster_centers, self.labels)
+        print("KMeans iterations complete...")
+        self._cluster_centers = current_centroids
+        self._labels = self._get_nearest_centroids(X, self._cluster_centers)
+        self._sse = self._sse_error(X, self._cluster_centers, self._labels)
+        
+        if self._verb == False:
+            enablePrint()
+        elif self._verb == True:
+            pass
+    
+    @property
+    def init_cluster_centers_(self):
+        return self._init_cluster_centers
+    
+    @property
+    def init_labels_(self):
+        return self._init_labels
+    
+    @property
+    def init_sse_(self):
+        return self._init_sse
         
     @property
     def cluster_centers_(self):
@@ -202,3 +264,14 @@ class KMeansEuclidean(_BaseKMeans):
     @property
     def sse_(self):
         return self._sse
+    
+    @property
+    def x_samples_(self):
+        return self._n_samples
+    
+    @property
+    def x_features_(self):
+        return self._n_features
+    
+
+    

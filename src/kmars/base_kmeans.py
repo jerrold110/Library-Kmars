@@ -1,29 +1,34 @@
 import numpy as np
 
-class _BaseKMeans:
+class _BaseK:
     """
     Base kmeans class. Assumed to be working with numpy.ndarrays
     
     Parameters
     -----------
-    n_clusters: int, default=
+    n_clusters: int
         The number of clusters to form and the number of centroids to generate
-    init: str, defalt="kmeans++"
-    
+    dist: int
+        The distance metric to use
+    init: str
+        
     max_iter: The numer of iterations to recalculate centroids
     
     seed: The random seed used to initialise the centroids
     """
-    def __init__(self, n_clusters, init, n_init, cluster_update, max_iter, tol, random_state):
+    def __init__(self, n_clusters, dist, init, n_init, max_iter, tol, random_state, verb):
+        if dist not in ['euclidean','manhattan','cosine','mahanalobis']:
+            raise ValueError("dist argument %s not valid" % (dist))
+        if init not in ['kmeans++','rand']:
+            raise ValueError("init argument %s not valid" % (init))
         
-        assert init in ['kmeans++','rand'], "init argument %s not valid" % (init)
-        assert cluster_update in ['mean','median'], "cluster_update argument %s not valid" % (init)
         self._n_clusters = n_clusters
+        self._dist = dist
         self._init = init
         self._n_init = n_init
-        self._cluster_update = cluster_update
         self._max_iter = max_iter
         self._tol = tol
+        self._verb = verb
         self._random_state = random_state
     
     def _init_random(self, X):
