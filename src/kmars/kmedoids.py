@@ -3,9 +3,11 @@ from .base_k import _BaseK
 from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
 from .modules.verbose import blockPrint, enablePrint
 
-class KMeans(_BaseK):
+class KMedoids(_BaseK):
     """
-    K-Means clustering object.
+    K-Medoids clustering object.
+    Current 'goodness of fit' values:
+        - Sum of Euclidean distances from centroids
 
     Args:
         n_clusters (int): The number of clusters to form
@@ -29,8 +31,8 @@ class KMeans(_BaseK):
         labels_
         sse_
         n_iter_converge_
-        x_samples_
-        x_features_
+        x_samples
+        x_features
     """
     def __init__(self, n_clusters, dist='euclidean', mini_ord=3, init='kmeans++', n_init=10, max_iter=300, tol=0.0001, random_state=0, verb=False):
         
@@ -44,7 +46,7 @@ class KMeans(_BaseK):
         self._labels = None
         self._sse = None
         self._n_iter_converge = None
-        print("KMeans object initialised with %s distance metric"%(self._dist))
+        print("KMedoids object initialised with %s distance metric"%(self._dist))
     
     def _init_random(self, X):
         """
@@ -93,6 +95,25 @@ class KMeans(_BaseK):
             sse_error += se_error
             
         return sse_error
+    
+    def _se_error(self, X, cluster_centers, x_labels):
+        """
+        Calculates the sum of distances of samples to their closest cluster center based on distance metric during initialisation.
+
+        Args:
+            X (2-dimension ndarray): X data
+            cluster_centers (2-dimension ndarray): array of vectors, shape[0]=_n_cluster_centers, shape[1] = n_features
+            x_labels (1-dimension ndarray): array of ints representing nearest cluster, shape[0] = n_samples
+
+        Returns:
+            float: The SE error
+        """
+        se_error = .0
+        for i in range(X.shape[0]):
+            nearest_cluster_ind = x_labels[i]
+            point_to_centroid_distance = self._distance(X[i], cluster_centers[nearest_cluster_ind])
+            se_error += point_to_centroid_distance
+        return se_error
     
     def _init_kmeansplusplus(self, X, start_seed):
         """
@@ -149,10 +170,20 @@ class KMeans(_BaseK):
     
     def _centroid_new_pos(self, points):
         """
-        Takes in a 2D array of all the points belonging to a centroid, returns a vector that is the mean of all points.
-        Mean for KMeans, Median for KMedians
+        Takes in a 2D array of all the points belonging to a centroid, returns a vector that minimises an error.
+        Loop over all points, find the point with the best fit score or best 'goodness of fit'
+        Current version uses:
+        - sum-of-error, future versions will use silhouette scores
         """
-        return np.mean(points, axis=0)
+        results_of_each_point = []
+        for i in range(points.shape[0]):
+            reference_point = points[i]
+            other_points = np.delete(points, i, axis=0)
+            se_result = self._se_error(other_points, reference_point, np.zeros(other_points.shape[0], dtype=int))
+            results_of_each_point.append((se_result, reference_point))
+        results_of_each_point.sort(key=lambda x:x[0])
+        # return the reference point with the best fit score
+        return results_of_each_point[0][1]
     
     def _centroids_update(self, n_centroids, X, x_nearest_centroids, current_centroids):
         """
@@ -196,7 +227,7 @@ class KMeans(_BaseK):
     
     def fit(self, X):
         """
-        Compute k-means clustering
+        Compute k-medoids clustering
 
         Args:
             X (2-dimension ndarray): The X data as a matrix.
@@ -224,23 +255,27 @@ class KMeans(_BaseK):
         self._init_sse = initial_sse
         # Loop over the max_iterations
         current_centroids = np.copy(initial_centroids)
-        # 1: Calculate positions of new centroids based on mean of points that belong to it
+        # assign current_fit_score
+        current_fit_score = self._se_error(X, initial_centroids, initial_labels)
+        # 1: Calculate positions of new centroids based on minimisation of the cost
         # 2: Update current_centroids to new_centroids
-        print('Starting KMeans iterations...')
+        print('Starting KMeadoids iterations...')
         for i in range(self._max_iter):
             nearest_centroids = self._get_nearest_centroids(X, current_centroids)
             new_centroids = self._centroids_update(self._n_clusters, X, nearest_centroids, current_centroids)
-            # 3: Calculate frobenius norm against tolerance to declare convergence
+            new_labels = self._get_nearest_centroids(X, new_centroids)
+            # 3: Calculate frobenius norm against tolerance and new fit score to declare convergence
             diff = new_centroids - current_centroids
             fn_update_diff = np.sqrt(np.sum(np.square(diff)))
             print(fn_update_diff)
-            if (fn_update_diff < self._tol):
+            new_fit_score = self._se_error(X, new_centroids, new_labels)
+            if (fn_update_diff < self._tol) or (new_fit_score < current_fit_score):
                 print(f"Convergence reached at iteration {i}")
                 break
             else:
                 current_centroids = new_centroids
         self._n_iter_converge = i + 1
-        print("KMeans iterations complete...")
+        print("KMedoids iterations complete...")
         self._cluster_centers = current_centroids
         self._labels = self._get_nearest_centroids(X, self._cluster_centers)
         self._sse = self._sse_error(X, self._cluster_centers, self._labels)

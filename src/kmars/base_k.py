@@ -16,14 +16,15 @@ class _BaseK:
     
     seed: The random seed used to initialise the centroids
     """
-    def __init__(self, n_clusters, dist, init, n_init, max_iter, tol, random_state, verb):
-        if dist not in ['euclidean','manhattan','cosine','mahanalobis']:
+    def __init__(self, n_clusters, dist, mini_ord, init, n_init, max_iter, tol, random_state, verb):
+        if dist not in ['euclidean','manhattan','minikowski','cosine','hamming']:
             raise ValueError("dist argument %s not valid" % (dist))
         if init not in ['kmeans++','rand']:
             raise ValueError("init argument %s not valid" % (init))
         
         self._n_clusters = n_clusters
         self._dist = dist
+        self._mini_ord = mini_ord
         self._init = init
         self._n_init = n_init
         self._max_iter = max_iter

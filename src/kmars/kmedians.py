@@ -3,13 +3,13 @@ from .base_k import _BaseK
 from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
 from .modules.verbose import blockPrint, enablePrint
 
-class KMeans(_BaseK):
+class KMedians(_BaseK):
     """
-    K-Means clustering object.
+    K-Medians clustering object.
 
     Args:
         n_clusters (int): The number of clusters to form
-        dist (str, optional): The distance metric used {'euclidean','manhattan','minikowski','cosine','hamming'}. Defaults to 'euclidean'.
+        dist (str, optional): The distance metric used {'euclidean','manhattan','minikowski','cosine','hamming'}. Defaults to 'manhattan'.
         mini_ord (int, optional): The order for minikowski distance. Ignored if dist is not 'minikowski'. Defaults to 3.
         init (str, optional): The initialisation method used to select initial centroids, 'kmeans++' or 'rand' . Defaults to 'kmeans++'.
         n_init (int, optional): The number of different seeds and times to run the kmeans++ initialisation of which best result is selected. Defaults to 10.
@@ -32,7 +32,7 @@ class KMeans(_BaseK):
         x_samples_
         x_features_
     """
-    def __init__(self, n_clusters, dist='euclidean', mini_ord=3, init='kmeans++', n_init=10, max_iter=300, tol=0.0001, random_state=0, verb=False):
+    def __init__(self, n_clusters, dist='manhattan', mini_ord=3, init='kmeans++', n_init=10, max_iter=300, tol=0.0001, random_state=0, verb=False):
         
         super().__init__(n_clusters, dist, mini_ord, init, n_init, max_iter, tol, random_state, verb)
         self._n_samples = None
@@ -44,7 +44,7 @@ class KMeans(_BaseK):
         self._labels = None
         self._sse = None
         self._n_iter_converge = None
-        print("KMeans object initialised with %s distance metric"%(self._dist))
+        print("KMedians object initialised with %s distance metric"%(self._dist))
     
     def _init_random(self, X):
         """
@@ -152,7 +152,7 @@ class KMeans(_BaseK):
         Takes in a 2D array of all the points belonging to a centroid, returns a vector that is the mean of all points.
         Mean for KMeans, Median for KMedians
         """
-        return np.mean(points, axis=0)
+        return np.median(points, axis=0)
     
     def _centroids_update(self, n_centroids, X, x_nearest_centroids, current_centroids):
         """
@@ -196,7 +196,7 @@ class KMeans(_BaseK):
     
     def fit(self, X):
         """
-        Compute k-means clustering
+        Compute k-medians clustering
 
         Args:
             X (2-dimension ndarray): The X data as a matrix.
@@ -224,9 +224,9 @@ class KMeans(_BaseK):
         self._init_sse = initial_sse
         # Loop over the max_iterations
         current_centroids = np.copy(initial_centroids)
-        # 1: Calculate positions of new centroids based on mean of points that belong to it
+        # 1: Calculate positions of new centroids based on median of points that belong to it
         # 2: Update current_centroids to new_centroids
-        print('Starting KMeans iterations...')
+        print('Starting KMedians iterations...')
         for i in range(self._max_iter):
             nearest_centroids = self._get_nearest_centroids(X, current_centroids)
             new_centroids = self._centroids_update(self._n_clusters, X, nearest_centroids, current_centroids)
@@ -240,7 +240,7 @@ class KMeans(_BaseK):
             else:
                 current_centroids = new_centroids
         self._n_iter_converge = i + 1
-        print("KMeans iterations complete...")
+        print("KMedians iterations complete...")
         self._cluster_centers = current_centroids
         self._labels = self._get_nearest_centroids(X, self._cluster_centers)
         self._sse = self._sse_error(X, self._cluster_centers, self._labels)
