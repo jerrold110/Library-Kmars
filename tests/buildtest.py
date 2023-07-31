@@ -19,18 +19,19 @@ import sys
 sys.path.append(f"{base_directory}/src")
 
 import kmars
-km = kmars.KMedians(3, dist='euclidean', n_init=10, init='kmeans++', max_iter=300, verb=True)
-km.fit(X)
+km = kmars.KMeans(3, init='kmeans++', dist='euclidean', verb=True)
+aaa  = km.fit_transform(X)
 # print(km.init_cluster_centers_)
 # print(km.init_labels_[km.init_labels_==1].shape)
 # print(km.init_sse_)
 print(km.cluster_centers_)
-print(km.labels_[km.labels_==1].shape)
-print(km.sse_)
+# print(km.labels_[km.labels_==1].shape)
+# print(km.sse_)
 # print(km.x_features_)
 # print(km.x_samples_)
 print(km._n_iter_converge)
-
+print(X)
+print(aaa)
 # test of sklearn euclidean
 
 

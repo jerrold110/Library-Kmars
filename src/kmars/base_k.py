@@ -58,6 +58,27 @@ class _BaseK:
 
         return distance
     
+    def _sse_error(self, X, cluster_centers, x_labels):
+        """
+        Calculates the sum of squared distances of samples to their closest cluster center based on distance metric during initialisation.
+
+        Args:
+            X (2-dimension ndarray): X data
+            cluster_centers (2-dimension ndarray): array of vectors, shape[0]=_n_cluster_centers, shape[1] = n_features
+            x_labels (1-dimension ndarray): array of ints representing nearest cluster, shape[0] = n_samples
+
+        Returns:
+            float: The SSE error
+        """
+        sse_error = .0
+        for i in range(X.shape[0]):
+            nearest_cluster_ind = x_labels[i]
+            point_to_centroid_distance = self._distance(X[i], cluster_centers[nearest_cluster_ind])
+            se_error = point_to_centroid_distance**2
+            sse_error += se_error
+            
+        return sse_error
+    
     def _init_random(self, X):
         """
         Returns a 2D array of initial centroid positions initialised randomly between the max and min value of every column
@@ -83,20 +104,64 @@ class _BaseK:
             
         return random_centroids
     
-    def _init_kmeansplusplus(self, X, seed):
+    def _init_kmeansplusplus(self, X, start_seed):
         """
-        Selects initial centroid and returns two arrays. One of the initial centroid, and the candidates.
+        Returns an array of initial centroid positions initialised with kmeans++. Based on best SSE with multiple seeds
+        Kmeans++ seeks to spread out the k initial clusters.
+
+        Args:
+            X (2-dimension ndarray): X data
+            start_seed (int): The first RNG seed to be used
+
+        Returns:
+            (2-dimension ndarray): array of vectors, shape[0]=_n_cluster_centers, shape[1] = n_features
         """
-        np.random.seed(seed)
-        n_samples, n_features = X.shape
-        # Initialise the first centroid with uniform distribution
-        centroids = np.empty((0, n_features), np.double)
-        candidate_centroids = X.copy()
-        first_centroid_ind = np.random.choice(n_samples)
-        first_centroid = X[first_centroid_ind]
-        # add new centroid to centroids
-        centroids = np.append(arr=centroids, values=np.array([first_centroid]), axis=0)
-        # remove datapoint from candidate_centroids
-        candidate_centroids = np.delete(arr=candidate_centroids, obj=first_centroid_ind, axis=0)
-        
-        return centroids, candidate_centroids
+        # This array stores tuples (see, centroids)
+        results = []
+        for i in range(self._n_init):
+            seed = start_seed + i
+            # Initialise the first centroid with random uniform distribution. 
+            # Centroids is the array that will be returned
+            np.random.seed(seed)
+            n_samples, n_features = X.shape
+            # Initialise the first centroid with uniform distribution
+            centroids = np.empty((0, n_features), np.double)
+            candidate_centroids = X.copy()
+            first_centroid_ind = np.random.choice(n_samples)
+            first_centroid = X[first_centroid_ind]
+            # add new centroid to centroids
+            centroids = np.append(arr=centroids, values=np.array([first_centroid]), axis=0)
+            # remove datapoint from candidate_centroids
+            candidate_centroids = np.delete(arr=candidate_centroids, obj=first_centroid_ind, axis=0)
+            # Loop over remaining centroids
+            # Loop over all candidate centroids
+            # Loop over all centroids. Calculate the min squared distance of all candidate centroids to existing centroids
+            # Create the probability distribution and select the next centroid
+            np.random.seed(seed)
+            for _ in range(self._n_clusters - 1):
+                distances = []
+                n_candidate_centroids = candidate_centroids.shape[0]
+                n_centroids = centroids.shape[0]
+                for j in range(n_candidate_centroids):
+                    point_to_centroid = []
+                    for c in range(n_centroids):
+                        point_to_centroid.append(self._distance(candidate_centroids[j], centroids[c]))
+                    distances.append(min(point_to_centroid))
+                distances = np.array(distances)
+                probabilities = distances / np.sum(distances)
+                next_centroid_ind = np.random.choice(a=n_candidate_centroids, p=probabilities)
+                # add new centroid to centroids. T
+                centroids = np.append(centroids, np.expand_dims(candidate_centroids[next_centroid_ind], 0), 0)
+                # remove datapoint from candidate_centroids
+                candidate_centroids = np.delete(candidate_centroids, next_centroid_ind, 0)
+            # Calculate SSE of the selected candidate centroids
+            nearest_centroids = self._get_nearest_centroids(X, centroids)
+            sse = self._sse_error(X, centroids, nearest_centroids)
+            results.append((sse, centroids))
+        # Sort results by see
+        results.sort(key=lambda x:x[0])
+        print("Kmeans++ initial centroids:")
+        print(results[0][1])
+        print(results[0][0])
+
+        return results[0][1]
