@@ -1,6 +1,5 @@
 import numpy as np
 from .base_k import _BaseK
-from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
 from .modules.verbose import blockPrint, enablePrint
 
 class KMedians(_BaseK):
@@ -58,20 +57,8 @@ class KMedians(_BaseK):
         """
         Returns vector distance between two points based on distance metric during initialisation.
         """
-        if self._dist == 'euclidean':
-            distance = _distance_euclidean(v1, v2)
-        elif self._dist == 'manhattan':
-            distance = _distance_manhattan(v1, v2)
-        elif self._dist == 'minikowski':
-            distance = _distance_minikowski(v1, v2, self._mini_ord)
-        elif self._dist == 'cosine':
-            distance = _distance_cosine(v1, v2)
-        elif self._dist == 'hamming':
-            distance = _distance_hamming(v1, v2)
-        else:
-            raise ValueError("We should not be able to get here. Error in _distance function with dist input %s" % (self._dist))
 
-        return distance
+        return super()._distance(v1, v2)
         
     def _sse_error(self, X, cluster_centers, x_labels):
         """
@@ -143,7 +130,6 @@ class KMedians(_BaseK):
         print("Kmeans++ initial centroids:")
         print(results[0][1])
         print(results[0][0])
-        print("")
 
         return results[0][1]
     
@@ -215,7 +201,7 @@ class KMedians(_BaseK):
             initial_centroids = self._init_kmeansplusplus(X, self._n_clusters)
         else:
             raise ValueError("The init variable %s is invalid " % (self._init))
-        print("Initial centroid via %s successful" % (self._init))
+        print("Initial centroid via %s successful" % (self._init), "\n")
         # These variables are for testing the sse of the initial centroids
         initial_labels = self._get_nearest_centroids(X, initial_centroids)
         initial_sse = self._sse_error(X, initial_centroids, initial_labels)

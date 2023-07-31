@@ -1,4 +1,11 @@
 import numpy as np
+from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
+
+"""
+To do:
+Move all the centroid initialisation methods into the parent class because all the variables needed are there
+
+"""
 
 class _BaseK:
     """
@@ -31,6 +38,25 @@ class _BaseK:
         self._tol = tol
         self._verb = verb
         self._random_state = random_state
+        
+    def _distance(self, v1, v2):
+        """
+        Returns vector distance between two points based on distance metric during initialisation.
+        """
+        if self._dist == 'euclidean':
+            distance = _distance_euclidean(v1, v2)
+        elif self._dist == 'manhattan':
+            distance = _distance_manhattan(v1, v2)
+        elif self._dist == 'minikowski':
+            distance = _distance_minikowski(v1, v2, self._mini_ord)
+        elif self._dist == 'cosine':
+            distance = _distance_cosine(v1, v2)
+        elif self._dist == 'hamming':
+            distance = _distance_hamming(v1, v2)
+        else:
+            raise ValueError("We should not be able to get here. Error in _distance function with dist input %s" % (self._dist))
+
+        return distance
     
     def _init_random(self, X):
         """
