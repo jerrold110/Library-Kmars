@@ -5,6 +5,13 @@ n_samples = 1500
 random_state = 170
 X, y = make_blobs(n_samples=n_samples, random_state=random_state)
 
+import pandas as pd
+X_ = pd.DataFrame(X)
+print(X_)
+X_.to_csv('X.csv')
+
+aaa
+
 import matplotlib.pyplot as plt
 
 plt.scatter(X[:, 0], X[:, 1])
@@ -24,14 +31,13 @@ aaa  = km.fit_transform(X)
 # print(km.init_cluster_centers_)
 # print(km.init_labels_[km.init_labels_==1].shape)
 # print(km.init_sse_)
-print(km.cluster_centers_)
+# print(km.cluster_centers_)
 # print(km.labels_[km.labels_==1].shape)
 # print(km.sse_)
 # print(km.x_features_)
 # print(km.x_samples_)
-print(km._n_iter_converge)
-print(X)
-print(aaa)
+# print(km._n_iter_converge)
+# print(X)
 # test of sklearn euclidean
 
 
