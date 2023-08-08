@@ -5,6 +5,9 @@ I created this library for my own use, because the KMeans class of the Scikit-le
 
 This library was developed with the intention to replicate the functionality and parameter convention used in Scikit-learn as close as possible so that end users, such as myself, will have little difficulty writing code for K-algorithm clustering machine learning tasks with KMars. New parameters are for controlling added functionality with organisation in mind. Currently only accepts numpy arrays as input.
 
+Jupyter notebook comparison with sklearn
+https://github.com/jerrold110/Library-Kmars/blob/main/notebooks/Comparison%20of%20Sklearn%20and%20Kmars.ipynb
+
 ## Example:
 ```python
 import numpy as np
@@ -17,10 +20,6 @@ KMeans.fit(X)
 labels = km.labels_
 cetroids = km.cluster_centers_
 
-km2 = KMedians(4, dist='manhattan', init='rand')
-km2.fit(X)
-init_labels = km2.init_labels_
-cetroids = km2.cluster_centers_
 ```
 
 ## Features:
