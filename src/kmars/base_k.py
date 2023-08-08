@@ -1,27 +1,10 @@
 import numpy as np
 from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
 
-"""
-To do:
-Move all the centroid initialisation methods into the parent class because all the variables needed are there
-
-"""
-
 class _BaseK:
     """
     Base kmeans class. Assumed to be working with numpy.ndarrays
-    
-    Parameters
-    -----------
-    n_clusters: int
-        The number of clusters to form and the number of centroids to generate
-    dist: int
-        The distance metric to use
-    init: str
-        
-    max_iter: The numer of iterations to recalculate centroids
-    
-    seed: The random seed used to initialise the centroids
+
     """
     def __init__(self, n_clusters, dist, mini_ord, init, n_init, max_iter, tol, random_state, verb):
         if dist not in ['euclidean','manhattan','minikowski','cosine','hamming']:
