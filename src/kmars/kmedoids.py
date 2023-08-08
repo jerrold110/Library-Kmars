@@ -1,11 +1,11 @@
 import numpy as np
 from .base_k import _BaseK
-from .modules.verbose import blockPrint, enablePrint
 
 class KMedoids(_BaseK):
     """
     K-Medoids clustering object.
-    Future: Add silhouette score
+    Maximum iterations is set at 50 by default because of the longer complexity of Kmedoids. 
+    Convergence is reached if none of the medoids move in a single iteration of n medoids.
 
     Args:
         n_clusters (int): The number of clusters to form
@@ -33,7 +33,7 @@ class KMedoids(_BaseK):
         x_samples
         x_features
     """
-    def __init__(self, n_clusters, dist='manhattan', mini_ord=3, m_update='se', init='kmeans++', n_init=10, max_iter=300, tol=0.0001, random_state=0, verb=False):
+    def __init__(self, n_clusters, dist='manhattan', mini_ord=3, m_update='se', init='kmeans++', n_init=10, max_iter=50, tol=0.0001, random_state=0, verb=False):
         
         super().__init__(n_clusters, dist, mini_ord, init, n_init, max_iter, tol, random_state, verb)
         self._fit_score = m_update
@@ -46,7 +46,8 @@ class KMedoids(_BaseK):
         self._labels = None
         self._sse = None
         self._n_iter_converge = None
-        print("KMedoids object initialised with %s distance metric and fit score %s"%(self._dist, self._fit_score))
+        if self._verb:
+            print("KMedoids object initialised with %s distance metric and %s fit score "%(self._dist, self._fit_score))
     
     def _se_error(self, X, cluster_centers, x_labels):
         """
@@ -125,13 +126,7 @@ class KMedoids(_BaseK):
         Args:
             X (2-dimension ndarray): The X data as a matrix.
         """
-        if self._verb == False:
-            blockPrint()
-        elif self._verb == True:
-            pass
-        else:
-            raise ValueError("Error in verbose with input %s" % (self._verb))
-        
+        X = self._validate_data(X)
         self._n_samples, self._n_features = X.shape  
         if self._init == "rand":
             initial_centroids = super()._init_random(X)
@@ -139,7 +134,8 @@ class KMedoids(_BaseK):
             initial_centroids = super()._init_kmeansplusplus(X, self._n_clusters)
         else:
             raise ValueError("The init variable %s is invalid " % (self._init))
-        print("Initial centroid via %s successful" % (self._init), "\n")
+        if self._verb:
+            print("Initial centroid via %s successful" % (self._init), "\n")
         # These variables are for testing the sse of the initial centroids
         initial_labels = self._get_nearest_centroids(X, initial_centroids)
         initial_sse = super()._sse_error(X, initial_centroids, initial_labels)
@@ -152,9 +148,11 @@ class KMedoids(_BaseK):
         current_fit_score = self._cost(X, initial_centroids, initial_labels)
         # 1: For each iteration, for each cluster
         # 2: Check against all data points, change the medoid in that cluster with that data point
-        print('Starting KMeadoids iterations...')
+        if self._verb:
+            print('Starting KMedoids iterations...')
         for i in range(self._max_iter):
-            print('Current fit score: %s' % (current_fit_score))
+            if self._verb:
+                print('Current fit score: %s' % (current_fit_score))
             iteration_centroids = current_centroids
             for n in range(self._n_clusters):
                 nearest_centroids = self._get_nearest_centroids(X, current_centroids)
@@ -170,17 +168,16 @@ class KMedoids(_BaseK):
             self._n_iter_converge = i + 1
             # 4: Converge if no change in centroids for an iteration
             if np.array_equal(new_centroids, iteration_centroids):
-                print(f"Convergence reached at iteration {i}")
+                if self._verb:
+                    print(f"Convergence reached at iteration {i}")
                 break
-        print("KMedoids iterations complete...")
+        if self._verb:
+            print("KMedoids iterations complete...")
         self._cluster_centers = current_centroids
         self._labels = self._get_nearest_centroids(X, self._cluster_centers)
         self._sse = super()._sse_error(X, self._cluster_centers, self._labels)
-        
-        if self._verb == False:
-            enablePrint()
-        elif self._verb == True:
-            pass
+
+        return self
         
     def fit_transform(self, X):
         """
@@ -195,7 +192,6 @@ class KMedoids(_BaseK):
         """
 
         self.fit(X)
-        print(X.shape)
         distance_to_cluster = [[self._distance(i, j) for i in self._cluster_centers] for j in X]
         distance_to_cluster = np.array(distance_to_cluster)
         

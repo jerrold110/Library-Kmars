@@ -1,6 +1,5 @@
 import numpy as np
 from .base_k import _BaseK
-from .modules.verbose import blockPrint, enablePrint
 
 class KMedians(_BaseK):
     """
@@ -43,8 +42,9 @@ class KMedians(_BaseK):
         self._labels = None
         self._sse = None
         self._n_iter_converge = None
-        print("KMedians object initialised with %s distance metric"%(self._dist))
-    
+        if self._verb:
+            print("KMedians object initialised with %s distance metric"%(self._dist))
+
     def _centroid_new_pos(self, points):
         """
         Takes in a 2D array of all the points belonging to a centroid, returns a vector that is the mean of all points.
@@ -102,13 +102,7 @@ class KMedians(_BaseK):
         Args:
             X (2-dimension ndarray): The X data as a matrix.
         """
-        if self._verb == False:
-            blockPrint()
-        elif self._verb == True:
-            pass
-        else:
-            raise ValueError("Error in verbose with input %s" % (self._verb))
-        
+        X = self._validate_data(X)
         self._n_samples, self._n_features = X.shape  
         if self._init == "rand":
             initial_centroids = super()._init_random(X)
@@ -116,7 +110,8 @@ class KMedians(_BaseK):
             initial_centroids = super()._init_kmeansplusplus(X, self._n_clusters)
         else:
             raise ValueError("The init variable %s is invalid " % (self._init))
-        print("Initial centroid via %s successful" % (self._init), "\n")
+        if self._verb:
+            print("Initial centroid via %s successful" % (self._init), "\n")
         # These variables are for testing the sse of the initial centroids
         initial_labels = self._get_nearest_centroids(X, initial_centroids)
         initial_sse = super()._sse_error(X, initial_centroids, initial_labels)
@@ -127,7 +122,8 @@ class KMedians(_BaseK):
         current_centroids = np.copy(initial_centroids)
         # 1: Calculate positions of new centroids based on median of points that belong to it
         # 2: Update current_centroids to new_centroids
-        print('Starting KMedians iterations...')
+        if self._verb:
+            print('Starting KMedians iterations...')
         for i in range(self._max_iter):
             nearest_centroids = self._get_nearest_centroids(X, current_centroids)
             new_centroids = self._centroids_update(self._n_clusters, X, nearest_centroids, current_centroids)
@@ -136,20 +132,19 @@ class KMedians(_BaseK):
             fn_update_diff = np.sqrt(np.sum(np.square(diff)))
             print(fn_update_diff)
             if (fn_update_diff < self._tol):
-                print(f"Convergence reached at iteration {i}")
+                if self._verb:
+                    print(f"Convergence reached at iteration {i}")
                 break
             else:
                 current_centroids = new_centroids
         self._n_iter_converge = i + 1
-        print("KMedians iterations complete...")
+        if self._verb:
+            print("KMedians iterations complete...")
         self._cluster_centers = current_centroids
         self._labels = self._get_nearest_centroids(X, self._cluster_centers)
         self._sse = super()._sse_error(X, self._cluster_centers, self._labels)
         
-        if self._verb == False:
-            enablePrint()
-        elif self._verb == True:
-            pass
+        return self
         
     def fit_transform(self, X):
         """
@@ -164,7 +159,6 @@ class KMedians(_BaseK):
         """
 
         self.fit(X)
-        print(X.shape)
         distance_to_cluster = [[self._distance(i, j) for i in self._cluster_centers] for j in X]
         distance_to_cluster = np.array(distance_to_cluster)
         

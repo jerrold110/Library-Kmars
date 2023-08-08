@@ -39,9 +39,18 @@ class _BaseK:
         self._verb = verb
         self._random_state = random_state
         
+    def _validate_data(self, X):
+        """
+        Convert data into a standard format upon calling to standardise the datatype of the calculations and the output.
+        float32
+        """
+        
+        return X.astype(np.float32)
+        
     def _distance(self, v1, v2):
         """
         Returns vector distance between two points based on distance metric during initialisation.
+        Distance calculations are scaled up to float64 to prevent numerical overflow, but returned in float32 to maintain consistency.
         """
         if self._dist == 'euclidean':
             distance = _distance_euclidean(v1, v2)
@@ -82,14 +91,9 @@ class _BaseK:
     def _init_random(self, X):
         """
         Returns a 2D array of initial centroid positions initialised randomly between the max and min value of every column
-        
-        Args:
-            a (_type_): _description_
-            b (_type_): _description_
-            c (_type_): _description_
 
         Returns:
-            _type_: _description_
+            2-dimension ndarray: random centroids
         """
         np.random.seed(self._random_state)
         n_features = X.shape[1]
@@ -102,7 +106,7 @@ class _BaseK:
             centroid = column_mins + (centroid * column_ranges)
             random_centroids = np.append(arr=random_centroids, values=np.array([centroid]), axis=0)
             
-        return random_centroids
+        return self._validate_data(random_centroids)
     
     def _init_kmeansplusplus(self, X, start_seed):
         """
@@ -125,7 +129,7 @@ class _BaseK:
             np.random.seed(seed)
             n_samples, n_features = X.shape
             # Initialise the first centroid with uniform distribution
-            centroids = np.empty((0, n_features), np.double)
+            centroids = np.empty((0, n_features), np.float32)
             candidate_centroids = X.copy()
             first_centroid_ind = np.random.choice(n_samples)
             first_centroid = X[first_centroid_ind]
@@ -145,11 +149,14 @@ class _BaseK:
                 for j in range(n_candidate_centroids):
                     point_to_centroid = []
                     for c in range(n_centroids):
-                        point_to_centroid.append(self._distance(candidate_centroids[j], centroids[c]))
+                        d = self._distance(candidate_centroids[j], centroids[c]).astype(np.float64)
+                        point_to_centroid.append(d)
                     distances.append(min(point_to_centroid))
-                distances = np.array(distances)
+                distances = np.array(distances, dtype=np.float32)
                 probabilities = distances / np.sum(distances)
+                
                 next_centroid_ind = np.random.choice(a=n_candidate_centroids, p=probabilities)
+                
                 # add new centroid to centroids. T
                 centroids = np.append(centroids, np.expand_dims(candidate_centroids[next_centroid_ind], 0), 0)
                 # remove datapoint from candidate_centroids
@@ -158,10 +165,11 @@ class _BaseK:
             nearest_centroids = self._get_nearest_centroids(X, centroids)
             sse = self._sse_error(X, centroids, nearest_centroids)
             results.append((sse, centroids))
-        # Sort results by see
+        # Sort results by sse
         results.sort(key=lambda x:x[0])
-        print("Kmeans++ initial centroids:")
-        print(results[0][1])
-        print(results[0][0])
+        if self._verb:
+            print("Kmeans++ initial centroids:")
+            print(results[0][1])
+            print(results[0][0])
 
-        return results[0][1]
+        return self._validate_data(results[0][1])

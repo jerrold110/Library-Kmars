@@ -7,17 +7,20 @@ This library was developed with the intention to replicate the functionality and
 
 ## Example:
 ```python
+import numpy as np
 from kmars import KMeans, KMedians
+
+X = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
 
 km = KMeans(3, dist='cosine')
 KMeans.fit(X)
 labels = km.labels_
-cetroid_positions = km.cluster_centers_
+cetroids = km.cluster_centers_
 
 km2 = KMedians(4, dist='manhattan', init='rand')
 km2.fit(X)
 init_labels = km2.init_labels_
-cetroid_positions = km2.cluster_centers_
+cetroids = km2.cluster_centers_
 ```
 
 ## Features:
@@ -36,5 +39,8 @@ The distance metric selected at initialisation is the same metric used for:
 
 ## Future features
 - Data validation to take in pandas dataframes
-- More algorithms
+- More algorithms, algorithm upgrades (FastPAM for Kmedoids instead of Naive)
 - More distance metrics
+
+## Issues
+- In jupyter notebooks creating an object with verb=False will disable all future print statements, this does not occur in .py files
