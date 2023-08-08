@@ -43,4 +43,3 @@ The distance metric selected at initialisation is the same metric used for:
 - More distance metrics
 
 ## Issues
-- In jupyter notebooks creating an object with verb=False will disable all future print statements, this does not occur in .py files
