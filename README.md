@@ -41,6 +41,7 @@ The field that never changes how it is calculated:
 
 ## Future features
 - Data validation to take in pandas dataframes
+- Input data validation for fit() and fit_transform()
 - More algorithms, algorithm upgrades (FastPAM for Kmedoids instead of Naive)
 - More distance metrics
 - Heuristic centroid initialisation: picks the n_clusters points with the smallest sum distance to every other point
