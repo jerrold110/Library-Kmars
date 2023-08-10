@@ -13,7 +13,7 @@ import sys
 sys.path.append(f"{base_directory}/src")
 import kmars
 
-km = kmars.KMeans(3, init='kmeans++', dist='cosine', verb=True).fit(X)
+km = kmars.KMedoids(3, init='kmeans++', dist='manhattan', verb=False).fit(X)
 print(km.init_cluster_centers_.dtype)
 print(km.init_labels_.dtype)
 print(km.init_labels_[km.init_labels_==1].shape)
@@ -21,7 +21,7 @@ print(km.init_sse_)
 print(km.cluster_centers_)
 print(km.labels_[km.labels_==1].shape)
 print(km.sse_)
+print(km.ssr_)
 print(km.x_features_)
 print(km.x_samples_)
 print(km._n_iter_converge)
-print(X)

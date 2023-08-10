@@ -19,7 +19,7 @@ km = KMeans(4, dist='euclidean', init='kmeans++')
 KMeans.fit(X)
 labels = km.labels_
 cetroids = km.cluster_centers_
-
+print(help(KMeans))
 ```
 
 ## Features:
@@ -31,16 +31,19 @@ cetroids = km.cluster_centers_
 - Selection of Sum-Square-Error or Sum-Error metric for KMedoids cluster centroid update and overall fit score
 - Data type changes to float64 during distance calculation to avoid numerical overflow
 
-## Distance metric
+## Distance metrics
 The distance metric selected at initialisation is the same metric used for: 
 - Centroid initialisation with kmeans++
-- Overall SSE in original distance metric, and euclidean distance (for comparing different distance metrics on the same algorithm)
+- Sum squares error metrics in distance metric at initialisation
 - Kmedoids centroid selection and all-cluster-centroid-update-approval
+The field that never changes how it is calculated:
+-  Manhattan distance (L1 norm) for SSE residuals (to compare different metrics of the same algo)
 
 ## Future features
 - Data validation to take in pandas dataframes
 - More algorithms, algorithm upgrades (FastPAM for Kmedoids instead of Naive)
 - More distance metrics
+- Heuristic centroid initialisation: picks the n_clusters points with the smallest sum distance to every other point
 
 ## Issues
 Currently only accepts numpy arrays as input.

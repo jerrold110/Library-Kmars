@@ -41,6 +41,7 @@ class KMedians(_BaseK):
         self._cluster_centers = None
         self._labels = None
         self._sse = None
+        self._ssr = None
         self._n_iter_converge = None
         if self._verb:
             print("KMedians object initialised with %s distance metric"%(self._dist))
@@ -143,6 +144,7 @@ class KMedians(_BaseK):
         self._cluster_centers = current_centroids
         self._labels = self._get_nearest_centroids(X, self._cluster_centers)
         self._sse = super()._sse_error(X, self._cluster_centers, self._labels)
+        self._ssr = super()._sse_residual(X, self._cluster_centers, self._labels)
         
         return self
         
@@ -187,6 +189,10 @@ class KMedians(_BaseK):
     @property
     def sse_(self):
         return self._sse
+    
+    @property
+    def ssr_(self):
+        return self._ssr
     
     @property
     def n_iter_converge(self):

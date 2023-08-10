@@ -50,6 +50,16 @@ class _BaseK:
 
         return distance
     
+    def _residual(self, v1, v2):
+        """
+        Returns residuals of two vectors
+        """
+        v1 = v1.astype(np.float32)
+        v2 = v2.astype(np.float32)
+        residual = np.sum(np.abs(v1 - v2))
+        
+        return residual
+    
     def _sse_error(self, X, cluster_centers, x_labels):
         """
         Calculates the sum of squared distances of samples to their closest cluster center based on distance metric during initialisation.
@@ -70,6 +80,27 @@ class _BaseK:
             sse_error += se_error
             
         return sse_error
+    
+    def _sse_residual(self, X, cluster_centers, x_labels):
+        """
+        Calculates the sum of squared residuals of samples to their closest cluster center based on distance metric during initialisation.
+
+        Args:
+            X (2-dimension ndarray): X data
+            cluster_centers (2-dimension ndarray): array of vectors, shape[0]=_n_cluster_centers, shape[1] = n_features
+            x_labels (1-dimension ndarray): array of ints representing nearest cluster, shape[0] = n_samples
+
+        Returns:
+            float: The SSE error
+        """
+        sser_residual = .0
+        for i in range(X.shape[0]):
+            nearest_cluster_ind = x_labels[i]
+            point_to_centroid_distance = self._residual(X[i], cluster_centers[nearest_cluster_ind])
+            ser_residual = point_to_centroid_distance**2
+            sser_residual += ser_residual
+            
+        return sser_residual
     
     def _init_random(self, X):
         """

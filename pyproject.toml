@@ -6,12 +6,12 @@ requires = [
 build-backend = "hatchling.build"
 
 [project]
-name = "kmars_release_test"
-version = "0.1.0"
+name = "kmars"
+version = "0.2.0"
 authors = [{ name="Jerrold Koh"}]
 description = "A library for K-clustering algorithms with multiple distance metrics"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
