@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kmars"
-version = "0.2.0"
+version = "0.2.1"
 authors = [{ name="Jerrold Koh"}]
 description = "A library for K-clustering algorithms with multiple distance metrics"
 readme = "README.md"

@@ -23,11 +23,12 @@ print(help(KMeans))
 ```
 
 ## Features:
-- K-means++ centroid initialisation with seed search 
-- Frobenius norm convergence
-- Distance metrics: 'euclidean','manhattan','minikowski','cosine','hamming'
 - Algorithms: KMeans, KMedians, KMedoids
-- Getter methods for positions/error_scores/close centroid for each datapoint label for initial centroids and final centroids
+- Distance metrics: 'euclidean','manhattan','minikowski','cosine','hamming'
+- K-means++ centroid initialisation with seed search 
+- Frobenius norm convergence and tolerance parameter
+- Getter methods for positions, error_scores, closest centroid for each datapoint label for initial centroids and final centroids
+- Getters for initial and final centroids: positions, closest data points,
 - Selection of Sum-Square-Error or Sum-Error metric for KMedoids cluster centroid update and overall fit score
 - Data type changes to float64 during distance calculation to avoid numerical overflow
 
