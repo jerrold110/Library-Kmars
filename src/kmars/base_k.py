@@ -3,8 +3,7 @@ from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, 
 
 class _BaseK:
     """
-    Base kmeans class. Assumed to be working with numpy.ndarrays
-
+    Base kmeans class. Assumed to be working with numpy arrays
     """
     def __init__(self, n_clusters, dist, mini_ord, init, n_init, max_iter, tol, random_state, verb):
         if dist not in ['euclidean','manhattan','minikowski','cosine','hamming']:
@@ -24,11 +23,21 @@ class _BaseK:
         
     def _validate_data(self, X):
         """
-        Convert data into a standard format upon calling to standardise the datatype of the calculations and the output.
-        float32
+        Validate data, convert into float32 upon calling to standardise the data type of the calculations and the output.
         """
+        try:
+            if not isinstance(X, np.ndarray):
+                raise TypeError
+            if len(X.shape)!=2 or X.shape[0]==0 or X.shape[1]==0 or X.dtype =='bool':
+                raise ValueError
+            return X.astype(np.float32)
         
-        return X.astype(np.float32)
+        except TypeError:
+            print("The input must be a numpy array")
+        except ValueError:
+            print("The array must be 2 dimensional, numerical, and no 0 length arrays")
+        except Exception as e:
+            print("An error occurred:", e)
         
     def _distance(self, v1, v2):
         """
