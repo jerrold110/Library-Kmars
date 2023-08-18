@@ -14,7 +14,7 @@ import sys
 sys.path.append(f"{base_directory}")
 import kmars
 
-km = kmars.KMedoids(3, init='kmeans++', dist='manhattan', verb=False).fit(X)
+km = kmars.KMedoids(3, init='kmeans++', dist='manhattan', verb=True).fit(X)
 print(km.init_cluster_centers_.dtype)
 print(km.init_labels_.dtype)
 print(km.init_labels_[km.init_labels_==1].shape)

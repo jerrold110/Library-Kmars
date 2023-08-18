@@ -1,5 +1,8 @@
 import numpy as np
-from .modules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
+# absolute import instead of relative because I don't want to treat _submodules as a subpackage
+from kmars._submodules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
+# use the following import if _submodules is treated as a subpackage with an __init__ file
+# from ._submodules.distance_metrics import _distance_euclidean, _distance_manhattan, _distance_minikowski, _distance_cosine, _distance_hamming
 
 class _BaseK:
     """

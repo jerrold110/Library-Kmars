@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kmars"
-version = "0.2.5"
+version = "0.2.15"
 authors = [{name="Jerrold Koh"}]
-description = "A library for K-clustering algorithms with multiple distance metrics"
+description = "A library for K-clustering algorithms with multiple distance metrics and kmeans++ initialisation"
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
