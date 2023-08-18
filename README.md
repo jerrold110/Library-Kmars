@@ -26,9 +26,8 @@ print(help(KMeans))
 - Algorithms: KMeans, KMedians, KMedoids
 - Distance metrics: 'euclidean','manhattan','minikowski','cosine','hamming'
 - K-means++ centroid initialisation with seed search 
-- Frobenius norm convergence and tolerance parameter
-- Getter methods for positions, error_scores, closest centroid for each datapoint label for initial centroids and final centroids
-- Getters for initial and final centroids: positions, closest data points,
+- Frobenius (L2) norm convergence, and tolerance parameter
+- Getter methods for positions, error_scores, closest centroid for for initial centroids and final centroids, and more
 - Selection of Sum-Square-Error or Sum-Error metric for KMedoids cluster centroid update and overall fit score
 - Data type changes to float64 during distance calculation to avoid numerical overflow
 
@@ -42,10 +41,9 @@ The field that never changes how it is calculated:
 
 ## Future features
 - Data validation to take in pandas dataframes
-- Input data validation for fit() and fit_transform()
 - More algorithms, algorithm upgrades (FastPAM for Kmedoids instead of Naive)
-- More distance metrics
+- More distance metrics (eg: improved sqrt cosine)
 - Heuristic centroid initialisation: picks the n_clusters points with the smallest sum distance to every other point
 
 ## Issues
-Currently only accepts numpy arrays as input.
+- Currently only accepts 2 dimensional numpy arrays as input

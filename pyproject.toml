@@ -1,25 +1,32 @@
 [build-system]
-requires = [
-    "hatchling",
-    "numpy>=1.20"
-    ]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "kmars"
-version = "0.2.1"
-authors = [{ name="Jerrold Koh"}]
+version = "0.2.5"
+authors = [{name="Jerrold Koh"}]
 description = "A library for K-clustering algorithms with multiple distance metrics"
 readme = "README.md"
 requires-python = ">=3.7"
+dependencies = [
+    "numpy >= 1.20"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: OS Independent"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/jerrold110/Library-Kmars"
+
+[tool.setuptools.packages.find]
+# All the following settings are optional:
+where = ["src"]
+include = ["kmars*"]
+exclude = ["tests*"]
+namespaces = false
 
 
 

@@ -9,8 +9,9 @@ X, y = make_blobs(n_samples=n_samples, random_state=random_state)
 # path management
 import os
 base_directory = os.path.dirname(os.path.dirname(__file__))
+print(base_directory)
 import sys
-sys.path.append(f"{base_directory}/src")
+sys.path.append(f"{base_directory}")
 import kmars
 
 km = kmars.KMedoids(3, init='kmeans++', dist='manhattan', verb=False).fit(X)
