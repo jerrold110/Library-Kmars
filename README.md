@@ -1,11 +1,11 @@
 ## Introduction
-This is an implementation of K-means/medians/medoids with various distance metrics (Euclidean, Manhattan, Cosine...) built over Numpy.
+A library for K-means, K-medians, and K-medoids clustering with various distance metrics (eg: Euclidean, Manhattan, Cosine...) to choose from built over Numpy. This library is useful when you want to try different algorithms or distance metrics to improve your clustering results or when working with high-dimensional datasets.
 
-I created this library for my own use, because the KMeans class of the Scikit-learn library lacks options for customising the variant of the K-algorithm and options for using distance metrics besides Euclidean distance. 
+I created this library for my own use, because the KMeans class of the Scikit-learn library lacks options for customising the variant of the K-algorithm and and only offers Euclidean distance as its distance metric. 
 
 This library was developed with the intention to replicate the functionality and parameter convention used in Scikit-learn as close as possible so that end users, such as myself, will have little difficulty writing code for K-algorithm clustering machine learning tasks with KMars. The additional distance metrics not present in sklearn's clustering module such as manhattan, minikowski, and cosine enable better results when working with high dimensional data.
 
-Jupyter notebook comparison with sklearn:
+Comparison of kmars with sklearn:
 
 https://github.com/jerrold110/Library-Kmars/blob/main/notebooks/Comparison%20of%20Sklearn%20and%20Kmars.ipynb
 
@@ -29,8 +29,8 @@ print(help(KMeans))
 ```
 
 ## Features:
-- Algorithms: KMeans, KMedians, KMedoids
-- Distance metrics: 'euclidean','manhattan','minikowski','cosine','hamming'
+- **Algorithms:** KMeans, KMedians, KMedoids
+- **Distance metrics**: euclidean, manhattan, minikowski, cosine, hamming
 - K-means++ centroid initialisation with seed search in selected distance metric
 - Frobenius (L2) norm convergence, and tolerance parameter
 - Getter methods for many metrics after fitting for initial and final centroids
@@ -44,7 +44,7 @@ The distance metric selected at initialisation is the same metric used for:
 - Kmedoids centroid selection and all-cluster-centroid-update-approval
 - Manhattan distance (L1 norm) SSE residuals as a common metric to compare different distance metrics of the same model
 
-## Available metrics after fitting model to data
+## Available metrics after data has been clustered
 - init_cluster_centers_: position of initial centroids
 - init_labels_: closest initial centroid of each data point
 - init_sse_: sum of squared errors of initial clusters in the chosen distance metric
